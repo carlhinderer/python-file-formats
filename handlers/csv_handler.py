@@ -25,6 +25,14 @@ def read_csv(filename):
 
 
 def write_csv():
+    with open(filename, 'w') as csvfile:
+        pass
+
+
+def read_csv_pandas():
+    pass
+
+def write_csv_pandas():
     pass
 
 
