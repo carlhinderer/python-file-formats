@@ -2,3 +2,111 @@
 | THRIFT                                                           |
 --------------------------------------------------------------------
 
+- Thrift
+
+    - Thrift provides 2 things:
+
+        1. Binary serialization format
+        2. Interface definition language
+
+
+
+- IDL (Interface Definition Language)
+
+    - Developers define abstract data types in IDL.
+
+
+    - Then, this IDL can be compiled into source code for any supported language.  The generated code
+        provides complete serialization and deserialization logic for all the defined types.
+
+
+    - Interface evolution features ensure that multiple interface versions can coexist in a single
+        operating environment.
+
+
+
+- Sample IDF Type Definitions
+
+   - Here is an example of an IDL that is used by a music company to move song metadata between
+       applications:
+
+
+        namespace * music
+
+        enum PerfRightsOrg {
+            ASCAP = 1
+            BMI = 2
+            SESAC = 3
+            Other = 4
+        }
+
+        typedef double Minutes
+
+        struct MusicTrack {
+            1: string title
+            2: string artist
+            3: string publisher
+            4: string composer
+            5: Minutes duration
+            6: PerfRightsOrg pro
+        }
+
+
+
+- Modular Serialization
+
+    - Thrift provides pluggable serializers, called 'protocols', which allow you to use any one of
+        several serialization formats for data exchange:
+
+        1. Binary protocol for speed
+        2. Compact protocol for size
+        3. JSON for readability
+
+
+    - The underlying IDL does not change, regardless of which protocol you use.
+
+
+
+- Services
+
+    - Thrift also allows you to define services in addition to types.  Like types, services can be 
+        compiled to generate stub code.  They are used to connect clients and servers in a wide range
+        of languages.
+
+
+    - Here is an example of a service:
+
+        sail_stats.thrift
+        -------------------------------
+        service SailStats {
+           double get_sailor_rating(1: string sailor_name)
+           double get_team_rating(1: string team_name)
+           double get_boat_rating(1: i64 boat_serial_number)
+           list<string> get_sailors_on_team(1: string team_name)
+           list<string> get_sailors_rated_between(1: double min_rating,
+                                                  2: double max_rating)
+           string get_team_captain(1: string team_name)
+        }
+
+
+    - Unlike standalone serialization solutions, Thrift comes with a complete set of server shells,
+        ready to use, in almost all supported languages.  This means you don't have to build custom
+        network servers.
+
+
+
+- Modular Transports
+
+    - Thrift also has a pluggable transport system.  For instance, the 'TSocket' transport allows
+        Thrift applications to communicate over TCP/IP sockets.
+
+
+    - There are additional prebuilt transports for named pipes and UNIX domain sockets.  Custom
+        transports are easy to create as well.
+
+
+    - Transports can be layered.  For instance, the 'TZLibTransport' can be layered on top of any
+        other transport to achieve high-ration data compression.
+
+      You can branch data to loggers, fork requests to parallel servers, encrypt, and perform any 
+        other manner of manipulation with custom-layered transports.
