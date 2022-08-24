@@ -1,0 +1,173 @@
+--------------------------------------------------------------------
+| COMPARISON OF IMPORTANT FILE FORMATS                             |
+--------------------------------------------------------------------
+
+- File Formats
+
+    [Basic]
+    - CSV
+    - XML
+    - JSON
+
+    [Row-Oriented]
+    - Avro
+    - Protobuf
+    - Thrift
+
+    [Column-Oriented]
+    - Parquet
+    - ORC
+
+
+
+- Data Exchange Formats
+
+    - JSON (over HTTP)
+    - XML (over HTTP)
+    - Avro (over Kafka)
+    - Protobuf (over gRPC)
+    - Thrift
+
+
+
+- Considerations with picking a format
+
+    - Text vs Binary
+
+        - Text is easier to use, since human-readable
+        - Text is usually compressed
+        - Binary is smaller, optimizes serialization
+
+
+    - Data Types Supported
+
+        - Scalar Types (ie integer, boolean, string, null)
+        - Complex Types (ie array, object)
+
+
+    - Schema Enforcement
+
+        - Schema may be enforced or not
+        - Schema may be sent along with data or separately
+        - Is the schema evolvable to support backwards/forward compatibility
+
+
+    - Row vs Column Storage
+
+        - Row-based is standard for OLTP, useful if we need to process entire row
+        - Column-based is standard for OLAP, useful if we only need a small number of columns
+
+
+    - Splittable
+
+        - Distributed system like HDFS needs files that can be divided into several pieces
+        - Ability to start reading at any point in file allows taking advantage of distributed processing
+        - User has to partition file if it can't be done automatically
+
+
+    - Compression
+
+        - Compression saves space on disk and speeds up network transfers
+        - Adds computational cost on source and destination
+        - Column-based formats compress better than row-based
+        - Compression applies mostly to text formats, unless binary format includes it in definition
+        - Compressing binary file usually results in larger file
+
+
+    - Batch vs Streaming
+
+        - Batch processing reads, analyzes, and transforms lots of records at once
+        - Stream processing reads records in real time and processes them as they arrive
+        - We might use 2 different formats for these 2 different cases
+
+
+    - Ecosystem
+
+        - The culture and usage of an ecosystem often determines which is the best choice also
+        - For instance, use Parquet on Cloudera platforms and ORC on Hortonworks platform
+        - Community help matters a lot
+
+
+
+- Csv
+
+  - Good option for compatibility, spreadsheet, human readable
+  - No schema support (except for headers)
+  - Most common format for import/export to RDBMSs
+  - Cannot handle nested data
+  - Issues with separator and escaped quotes can lead to data quality issues
+  - Not splittable since \n might be in data
+
+
+
+- Json
+
+  - Allows nesting of data
+  - Commonly used in APIs, supported by HTTP
+  - Not splittable, the 'Json-lines' format guarantees lack of \n characters in data to make splittable
+  - BSON (used in MongoDB) is a smaller binary format
+  - Used with GraphQL
+
+
+
+- Xml
+
+  - Sometimes used in APIs, supported by HTTP
+  - Much more verbose text format
+  - Not splittable due to tag nesting
+
+
+
+- Avro
+
+  - Created as part of Hadoop project (serialization for persistent data and wire format)
+  - Row-oriented, very efficient for storing row data
+  - Stores it's schema in easy-to-read JSON format, data is always accompanied by schema
+  - Supports file splitting
+  - Supports batch and streaming
+  - Integrates well with Kakfa
+  - SparkSQL can access it as a data source
+  - Does not require running a code-generation program when schema changes
+
+
+
+- Protocol Buffers
+
+  - Developed by Google and open sourced in 2008 (both for storage and communication)
+  - Used as exchange format with gRPC, which is widely used in K8s
+  - Supports schema evolution, requires a reference file with the schema
+  - Supports batch and stream processing
+  - Strongly typed with large set of data types, code can validate against schema
+  - Not splittable
+  - Not designed to handle large messages, doesn't support random access
+
+
+
+- Parquet
+
+  - Open-source columnar format created for the Hadoop ecosystem
+  - Excellent performance for analytics
+  - Ordering by column leads to good compression performance
+  - Supports schema evolution
+  - Batch processing only
+  - Commonly used with Spark
+
+
+
+- ORC (Optimized Row Columnar)
+
+  - Columnar format created by HortonWorks and Facebook
+  - Excellent format 
+  - Contains groups of row data called stripes
+  - Very compressible, can reduce size by 75%
+  - Have to recreate entire file to add data
+  - Does not support schema evolution
+
+
+
+- Thrift
+
+  - Developed by Facebook, then open sourced to ASF (for both storage and communication)
+  - Supports schema written in IDL for cross-language compatability
+  - Supports schema evolution
+  - Not as widely used as others
