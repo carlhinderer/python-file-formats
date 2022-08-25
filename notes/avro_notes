@@ -2,4 +2,92 @@
 | AVRO                                                             |
 --------------------------------------------------------------------
 
-- 
+- Defining a Schema
+
+    - Avro schemas are defined using JSON.  Schemas are composed of:
+
+        - Primitive Types (null, boolean, int, long, float, double, bytes, string)
+        - Complex Types (record, enum, array, map, union, fixed)
+
+
+    - Here is a simple schema:
+
+        user.asvc
+        ----------------------------
+        {
+            "namespace": "example.avro",
+            "type": "record",
+            "name": "User",
+            "fields": [
+                {"name": "name", "type": "string"},
+                {"name": "favorite_number",  "type": ["int", "null"]},
+                {"name": "favorite_color", "type": ["string", "null"]}
+            ]
+        }
+
+
+    - This schema defines a record representing a user.  Note that a schema file can only contain a
+        single schema definition.  Every schema must include a 'type' and a 'name' at minimum.
+
+
+    - The combination of 'namespace' and 'name' define the full name of the schema.  In this case, the
+        full name is 'example.avro.User'.
+
+
+    - The 'fields' attribute is array of fields, and type can be a single type(indicating it is required)
+        or an array of possible types in a union.
+
+
+
+- Serializing and Deserializing without Code Generation
+
+    - Data in Avro is always stored with it's corresponding schema.  This means we can always read a
+        serialized item, regardless of whether we know the schema ahead of time.
+
+      This allows us to perform serialization and deserialization without code generation.  Note that
+        the Python Avro library doesn't support code generation anyways.
+
+
+    - This code serializes 2 users to a file on disk, then reads back and deserializes the file:
+
+        import avro.schema
+        from avro.datafile import DataFileReader, DataFileWriter
+        from avro.io import DatumReader, DatumWriter
+
+        # Load schema
+        schema = avro.schema.parse(open('user.asvc', 'rb').read())
+
+        # Write file
+        writer = DataFileWriter(open("users.avro", "wb"), DatumWriter(), schema)
+        writer.append({"name": "Alyssa", "favorite_number": 256})
+        writer.append({"name": "Ben", "favorite_number": 7, "favorite_color": "red"})
+        writer.close()
+
+        # Read file
+        reader = DataFileReader(open("users.avro", "rb"), DatumReader())
+        for user in reader:
+            print user
+        reader.close()
+
+
+    - Note we need to read and write files in binary mode ('rb' or 'wb') to avoid issues from automatic
+        replacement of newline characters to platform-specific recommendations.
+
+
+    - A 'DataFileWriter' is used to write serialized items to disk.  The 'DatumWriter' is used to
+        actually serialize the items into Avro's binary format.
+
+
+
+- Avro Schemas
+
+    - When Avro data is read, the schema used when writing it is always present.  This makes serialization
+        both fast and small.
+
+
+    - When Avro is stored with a file, it's schema is stored with it, so that files may be processed later
+        by any other program.  If the program reading data expects a different schema, this can be
+        easily resolved, since both schemas are present.
+
+
+    - 
