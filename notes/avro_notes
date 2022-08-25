@@ -90,4 +90,5 @@
         easily resolved, since both schemas are present.
 
 
-    - 
+    - When Avro is used in RPC, the client and server exchange schemas in the connection handshake.  This
+        can be optimized so that for most calls, no schemas are actually transmitted.
