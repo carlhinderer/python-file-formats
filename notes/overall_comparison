@@ -96,7 +96,7 @@
   - Most common format for import/export to RDBMSs
   - Cannot handle nested data
   - Issues with separator and escaped quotes can lead to data quality issues
-  - Not splittable since \n might be in data
+  - Not splittable since no standard for newlines, and newline character might be in data
 
 
 

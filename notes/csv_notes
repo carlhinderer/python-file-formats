@@ -1,3 +1,123 @@
 --------------------------------------------------------------------
 | CSV                                                              |
 --------------------------------------------------------------------
+
+- Reading with The csv Module
+
+    - File Modes:
+
+        'r'       # Read an existing file
+        'w'       # Create a new file if it doesn't exist, then write to it
+        'a'       # Append to existing file content
+        '+'       # Create a new file for reading and writing
+
+
+    - To read a file:
+
+        import csv
+
+        rows = []
+
+        with open('employees.csv', 'r') as csvfile:
+            csv_reader = csv.reader(csvfile, delimiter=',')
+            fields = next(csv_reader)
+            
+            for row in csv_reader:
+                rows.append(row)
+
+            print('Total number of rows: ', csv_reader.line_num)
+
+        print('Fields: ', fields)
+        print('Rows: ', rows)
+
+
+    - To read csv files into a dictionary (this will give us the same output as before):
+
+        with open('teams.csv', 'r') as csvfile:
+            csv_reader = csv.DictReader(csvfile)
+            
+            for row in csv_reader:
+                print(row['city'], row['name'], row['short_name'], row['url_name'])
+
+            print('Total number of rows: ', csv_reader.line_num)
+
+
+
+- Writing with The csv Module
+
+    - To write a file:
+
+        import csv
+
+        header = ['Name', 'M1 Score', 'M2 Score']
+        data = [['Alex', 62, 80], ['Brad', 45, 56], ['Joey', 85, 98]]
+
+        filename = 'students.csv'
+
+        with open(filename, 'w', newline="") as csvfile:
+            csv_writer = csv.writer(file)
+            csv_writer.writerow(header)
+            csv_writer.writerows(data)
+
+
+    - To write using a dictionary:
+
+        with open(filename, 'w', newline="") as csvfile:
+            field_names = ['first_name', 'last_name']
+            writer = csv.DictWriter(csvfile, fieldnames = fieldnames)
+
+            writer.writeheader()
+            writer.writerow({'first_name': 'Baked', 'last_name': 'Beans'})
+            writer.writerow({'first_name': 'Lovely', 'last_name': 'Spam'})
+            writer.writerow({'first_name': 'Wonderful', 'last_name': 'Spam'})
+
+
+
+- Dialects
+
+    - Dialects are classes with attributes that contain information about how to handle doublequotes,
+        whitespace, delimiters, etc.
+
+        # List available dialects
+        >>> csv.list_dialects()
+        ['excel', 'excel-tab', 'unix']
+
+
+    - To use one of the dialects:
+
+        reader = csv.writer(csvfile, dialect='unix')
+
+
+
+- CSV Options
+
+    - The following constants are available to fine-tune reading of and writing to csv files:
+
+        
+        csv.QUOTE_ALL               # Instructs writer objects to quote all fields.
+
+        csv.QUOTE_MINIMAL           # Instructs writer objects to only quote those fields which contain 
+                                    #   special characters such as delimiter, quotechar or any of the 
+                                    #   characters in lineterminator.
+
+        csv.QUOTE_NONNUMERIC        # Instructs writer objects to quote all non-numeric fields.
+                                    # Instructs the reader to convert all non-quoted fields to type float.
+
+        csv.QUOTE_NONE              # Instructs writer objects to never quote fields. When the current 
+                                    # nstructs reader to perform no special processing of quote characters.
+
+
+
+- Reading and Writing with pandas
+
+    - To read a csv with pandas:
+
+        import pandas as pd
+
+        df = pd.read_csv('data.csv')
+
+
+    - To write a csv with pandas:
+
+        df = pd.DataFrame(SAMPLE_DATA, columns=SAMPLE_FIELDS)
+        df.to_csv('data.csv', index=False)                      # index=False leaves df row number out
