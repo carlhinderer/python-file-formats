@@ -170,4 +170,5 @@
   - Developed by Facebook, then open sourced to ASF (for both storage and communication)
   - Supports schema written in IDL for cross-language compatability
   - Supports schema evolution
+  - Supports lists, sets, and maps
   - Not as widely used as others

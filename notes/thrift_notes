@@ -110,3 +110,97 @@
 
       You can branch data to loggers, fork requests to parallel servers, encrypt, and perform any 
         other manner of manipulation with custom-layered transports.
+
+
+
+- Creating a simple IDL
+
+    - Here is the simplest possible service definition.  The 'hello_func()' accepts no parameters and
+        returns a string:
+
+
+        hello.thrift
+        ---------------------------
+        service HelloSvc {
+            string hello_func()
+        }
+
+
+    - Now, we use the Thrift compiler to generate python code:
+
+        $ thrift --gen py hello.thrift
+
+
+
+- Creating the Server
+
+    - Now that we have our support code generated, we can implement our service and use a prebuilt
+        Thrift server to house it.
+
+
+        hello_server.py
+        ---------------------------
+        import sys
+        sys.path.append('gen-py')
+
+        from hello import HelloSvc
+
+        from thrift.transport import TSocket           # Endpoint for clients to connect to
+        from thrift.transport import TTransport        # Provides a buffering layer
+        from thrift.protocol import TBinaryProtocol    # Handles data serialization
+        from thrift.server import TServer              # Gives us access to prebuilt server classes
+
+
+        class HelloHandler:
+            def hello_func(self):
+                print("[Server] Handling client request...")
+                return "Hello from the Python server"
+
+
+        handler = HelloHandler()
+        proc = HelloSvc.Processor(handler)
+
+        trans_svr = TSocker.TServerSocket(port=9090)
+        trans_fac = TTransport.TBufferedTransportFactory()
+        proto_fac = TBinaryProtocol.TBinaryProtocolFactory()
+
+        server = TServer.TSimpleServer(proc, trans_svr, trans_fac, proto_fac)
+        server.serve()
+
+
+    - We can run the server:
+
+        $ python hello_server.py
+
+
+
+- Creating the Client
+
+    - Now, we can create a simple client to test our server:
+
+        hello_client.py
+        ---------------------------
+        import sys
+        sys.path.append('gen-py')
+
+        from hello import HelloSvc
+
+        from thrift.transport import TSocket       
+        from thrift.transport import TTransport    
+        from thrift.protocol import TBinaryProtocol
+
+
+        trans = TSocket.TSocket('localhost', 9090)
+        trans = TTransport.TBufferedTransport(trans)
+        proto = TBinaryProtocol.TBinaryProtocol(trans)
+        client = HelloSvc.Client(proto)
+
+        trans.open()
+        msg = client.hello_func()
+        print("[Client] received: %s" % msg)
+        trans.close()
+
+
+    - We can run the client to test the server:
+
+        $ python hello_client.py
